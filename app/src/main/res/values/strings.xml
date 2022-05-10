@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Day Scheduler</string>
+
+    <string name="empty_schedule_list">No tasks</string>
+    <string name="task_title_hint">Title</string>
+    <string name="create_chip">Create</string>
+    <string name="task_description_hint">Description</string>
+    <string name="task_start_time">Start:</string>
+    <string name="task_end_time">Finish:</string>
+    <string name="time_delimiter" translatable="false">-</string>
+    <string name="reminder_checkbox_text">Reminder</string>
+    <string name="task_creation_fragment">Create Task</string>
+    <string name="day_schedule_fragment">Day Schedule</string>
 </resources>

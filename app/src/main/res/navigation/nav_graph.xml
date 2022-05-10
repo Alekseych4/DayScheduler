@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dayScheduleFragment">
 
+    <fragment
+        android:id="@+id/dayScheduleFragment"
+        android:name="com.open.day.dayscheduler.DayScheduleFragment"
+        android:label="@string/day_schedule_fragment"
+        tools:layout="@layout/fragment_schedule_items_list">
+        <action
+            android:id="@+id/action_dayScheduleFragment_to_taskCreationFragment"
+            app:destination="@id/taskCreationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskCreationFragment"
+        android:name="com.open.day.dayscheduler.TaskCreationFragment"
+        android:label="@string/task_creation_fragment"
+        tools:layout="@layout/task_creation_fragment" >
+        <argument
+            android:name="id"
+            app:argType="java.util.UUID" />
+    </fragment>
 </navigation>
