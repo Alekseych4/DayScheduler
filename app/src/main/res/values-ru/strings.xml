@@ -11,4 +11,9 @@
     <string name="reminder_checkbox_text">Напоминание</string>
     <string name="task_creation_fragment">Создать задачу</string>
     <string name="day_schedule_fragment">Распорядок дня</string>
+    <string name="work_tag">Работа</string>
+    <string name="study_tag">Учеба</string>
+    <string name="workout_tag">Тренировка</string>
+    <string name="meal_tag">Еда</string>
+    <string name="leisure_tag">Досуг</string>
 </resources>

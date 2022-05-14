@@ -11,4 +11,9 @@
     <string name="reminder_checkbox_text">Reminder</string>
     <string name="task_creation_fragment">Create Task</string>
     <string name="day_schedule_fragment">Day Schedule</string>
+    <string name="work_tag">Work</string>
+    <string name="study_tag">Study</string>
+    <string name="workout_tag">Workout</string>
+    <string name="meal_tag">Meal</string>
+    <string name="leisure_tag">Leisure</string>
 </resources>

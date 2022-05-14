@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.open.day.dayscheduler.viewModel.TaskCreationViewModel
+import com.open.day.dayscheduler.viewModel.TasksViewModel
 
 class TaskCreationFragment : Fragment() {
 
@@ -14,7 +14,7 @@ class TaskCreationFragment : Fragment() {
         fun newInstance() = TaskCreationFragment()
     }
 
-    private lateinit var viewModel: TaskCreationViewModel
+    private lateinit var viewModel: TasksViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -23,7 +23,7 @@ class TaskCreationFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(TaskCreationViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(TasksViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
