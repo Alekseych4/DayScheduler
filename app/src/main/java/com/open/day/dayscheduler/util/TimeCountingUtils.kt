@@ -2,6 +2,7 @@ package com.open.day.dayscheduler.util
 
 import android.icu.util.Calendar
 import android.icu.util.DateInterval
+import android.text.format.DateFormat
 
 class TimeCountingUtils {
     companion object {
@@ -17,6 +18,14 @@ class TimeCountingUtils {
             dayEnd.set(Calendar.HOUR, 23)
 
             return DateInterval(dayStart.timeInMillis, dayEnd.timeInMillis)
+        }
+
+        fun millisToHoursAndMinutes(millis: Long): String {
+            return DateFormat.format("kk:mm", millis).toString()
+        }
+
+        fun millisToDayDateMonth(millis: Long): String {
+            return DateFormat.format("cc, dd LLL", millis).toString()
         }
     }
 

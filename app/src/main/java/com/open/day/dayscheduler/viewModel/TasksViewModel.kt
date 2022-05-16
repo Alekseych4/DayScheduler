@@ -24,11 +24,31 @@ class TasksViewModel @Inject constructor(private val taskRepository: TaskReposit
     private val _tasks: MutableLiveData<List<TaskModel>> = MutableLiveData()
     val tasks: LiveData<List<TaskModel>> = _tasks
 
+    val task: MutableLiveData<TaskModel?> = MutableLiveData()
+
+    val title: MutableLiveData<String?> = MutableLiveData()
+    val startTime: MutableLiveData<Long?> = MutableLiveData()
+    val endTime: MutableLiveData<Long?> = MutableLiveData()
+    val isAnchor: MutableLiveData<Boolean?> = MutableLiveData()
+    val isReminder: MutableLiveData<Boolean?> = MutableLiveData()
+    val description: MutableLiveData<String?> = MutableLiveData()
+
+    private val _error: MutableLiveData<String> = MutableLiveData()
+    val error: LiveData<String> = _error
+    private val _spinner: MutableLiveData<Boolean> = MutableLiveData()
+    val spinner: LiveData<Boolean> = _spinner
+
     init {
         viewModelScope.launch {
             taskRepository.getTasks(TimeCountingUtils.getCurrentDayInterval())
                 .collect { _tasks.value = it }
         }
+    }
+
+    fun saveCurrentTask() {
+        val toSave = task.value
+        if (toSave != null)
+            viewModelScope.launch { taskRepository.saveTask(toSave) }
     }
 
     fun saveTask(taskModel: TaskModel) {
@@ -49,9 +69,21 @@ class TasksViewModel @Inject constructor(private val taskRepository: TaskReposit
                 funToSuspend()
             } catch (e: Exception) {
                 Log.e("ERROR", e.message ?: " ")
+                _error.value = e.message
             } finally {
 
             }
         }
+    }
+
+    fun updateTaskById(taskId: UUID) {
+       viewModelScope.launch {
+           val res = taskRepository.getTaskById(taskId)
+           if (res == null) {
+               _error.value = "No such data"
+           } else {
+               task.value = res
+           }
+       }
     }
 }

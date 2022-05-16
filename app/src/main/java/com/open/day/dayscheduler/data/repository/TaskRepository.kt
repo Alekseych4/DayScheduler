@@ -49,4 +49,14 @@ class TaskRepository @Inject constructor (
                 ) }
             }
     }
+
+    suspend fun getTaskById(id: UUID): TaskModel? {
+        val entity = taskDao.getById(id)
+        return if (entity == null) {
+            null
+        } else {
+            TaskModel(entity.id, entity.title, entity.tag, entity.startTime, entity.isReminder,
+                entity.isAnchor, entity.endTime, entity.description)
+        }
+    }
 }

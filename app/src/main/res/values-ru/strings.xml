@@ -16,4 +16,5 @@
     <string name="workout_tag">Тренировка</string>
     <string name="meal_tag">Еда</string>
     <string name="leisure_tag">Досуг</string>
+    <string name="anchor_checkbox_text">Фиксированное время</string>
 </resources>

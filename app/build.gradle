@@ -38,6 +38,9 @@ android {
         jvmTarget = '1.8'
     }
     namespace 'com.open.day.dayscheduler'
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {

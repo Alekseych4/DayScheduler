@@ -1,7 +1,6 @@
 package com.open.day.dayscheduler.controller.adapter
 
 import android.content.res.Resources
-import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +11,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.open.day.dayscheduler.DayScheduleFragmentDirections
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.exception.NoSuchRowException
 import com.open.day.dayscheduler.model.TaskModel
-import java.util.*
+import com.open.day.dayscheduler.ui.DayScheduleFragmentDirections
+import java.util.UUID
+import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.millisToHoursAndMinutes as getTime
 
 class DayScheduleAdapter(private val navController: NavController)
     : ListAdapter<TaskModel, DayScheduleAdapter.TasksViewHolder>(tasksComparator) {
@@ -48,10 +48,6 @@ class DayScheduleAdapter(private val navController: NavController)
             chipGroup.addView(getChip(Resources.getSystem().getString(taskModel.tag.tagName)))
 
             itemView.setOnClickListener(onListItemClickListener(taskModel.id))
-        }
-
-        private fun getTime(millis: Long): String {
-            return DateFormat.format("kk:mm", millis) as String
         }
 
         private fun getChip(tag: String): Chip {

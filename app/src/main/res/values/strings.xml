@@ -16,4 +16,5 @@
     <string name="workout_tag">Workout</string>
     <string name="meal_tag">Meal</string>
     <string name="leisure_tag">Leisure</string>
+    <string name="anchor_checkbox_text">Anchor</string>
 </resources>

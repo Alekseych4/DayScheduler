@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DayScheduler">
         <activity
-            android:name="com.open.day.dayscheduler.MainActivity"
+            android:name="com.open.day.dayscheduler.HostActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

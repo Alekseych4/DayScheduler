@@ -25,5 +25,5 @@ interface TaskDao {
     fun getByTimeRange(start: Long, end: Long): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getById(taskId: UUID): Flow<TaskEntity?>
+    suspend fun getById(taskId: UUID): TaskEntity?
 }
