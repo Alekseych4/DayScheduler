@@ -30,6 +30,14 @@ abstract class AppDatabase : RoomDatabase() {
                     object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
+                            val cursor = db.query("SELECT * FROM users WHERE is_local_user = 1 LIMIT 1;")
+
+                            if (cursor.count == 0) {
+                                val user = UserEntity(null, null, true)
+                                db.execSQL("INSERT INTO users VALUES(null, null, 1, %s);".format(user.id))
+                            }
+
+                            cursor.close()
                         }
                     }
                 )

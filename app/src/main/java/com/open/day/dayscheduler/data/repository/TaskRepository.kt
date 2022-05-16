@@ -27,13 +27,11 @@ class TaskRepository @Inject constructor (
     suspend fun saveTask(taskModel: TaskModel) {
         val user = userRepository.getLocalUser()
 
-        withContext(Dispatchers.IO) {
-            TaskEntity(
-                taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
-                taskModel.isReminder, taskModel.isAnchor, taskModel.tag, user.id
-            )
-                .also { taskDao.insertTask(it) }
-        }
+        TaskEntity(
+            taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
+            taskModel.isReminder, taskModel.isAnchor, taskModel.tag, user.id
+        )
+            .also { taskDao.insertTask(it) }
     }
 
     suspend fun deleteTaskById(id: UUID) {
@@ -43,14 +41,12 @@ class TaskRepository @Inject constructor (
     suspend fun getTasks(interval: DateInterval): Flow<List<TaskModel>> {
         val user = userRepository.getLocalUser()
 
-        return withContext(Dispatchers.IO) {
-            return@withContext taskDao.getByTimeRange(interval.fromDate, interval.toDate)
-                .map {
-                    it.map { entity -> TaskModel(
-                        entity.id, entity.title, entity.tag, entity.startTime, entity.isReminder,
-                        entity.isAnchor, entity.endTime, entity.description
-                    ) }
-                }
-        }
+        return taskDao.getByTimeRange(interval.fromDate, interval.toDate)
+            .map {
+                it.map { entity -> TaskModel(
+                    entity.id, entity.title, entity.tag, entity.startTime, entity.isReminder,
+                    entity.isAnchor, entity.endTime, entity.description
+                ) }
+            }
     }
 }

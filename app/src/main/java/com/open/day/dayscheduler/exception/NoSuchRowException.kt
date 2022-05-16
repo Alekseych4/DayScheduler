@@ -1,8 +1,6 @@
 package com.open.day.dayscheduler.exception
 
-import java.lang.RuntimeException
-
-class NoSuchRowException : RuntimeException {
+class NoSuchRowException : Exception {
     constructor() : super("DB error!")
     constructor(message: String) : super(message)
 }

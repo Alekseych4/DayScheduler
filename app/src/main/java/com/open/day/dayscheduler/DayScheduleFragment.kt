@@ -5,15 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.open.day.dayscheduler.controller.adapter.DayScheduleAdapter
-import com.open.day.dayscheduler.model.TaskModel
-import java.util.*
+import com.open.day.dayscheduler.viewModel.TasksViewModel
 
 /**
  * A fragment representing a list of Items.
@@ -28,22 +26,22 @@ class DayScheduleFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_schedule_items_list, container, false)
         val scheduleRecyclerView: RecyclerView = view.findViewById(R.id.schedule_items_list)
+        val taskViewModel: TasksViewModel by viewModels()
+
+        val adapter = DayScheduleAdapter(this.findNavController())
 
         scheduleRecyclerView.layoutManager = LinearLayoutManager(context)
-        scheduleRecyclerView.adapter = DayScheduleAdapter(listOf(
-            TaskModel(UUID.randomUUID(), "Сдать сиспрог", listOf("Учеба"), 1652169003599,
-                false, 1652169553599, "Ну надо, чё"),
-            TaskModel(UUID.randomUUID(), "Сдать защиту", listOf("Учеба"), 1652169182396,
-                false, 1652179182396, "Ну надо, чё")), this.findNavController())
+        scheduleRecyclerView.adapter = adapter
+
+        taskViewModel.tasks.observe(viewLifecycleOwner, Observer { tasks ->
+            adapter.submitList(tasks)
+        })
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val navController: NavController = this.findNavController()
-
     }
 
     companion object {
