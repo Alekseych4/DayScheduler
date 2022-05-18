@@ -5,8 +5,8 @@
     <string name="task_title_hint">Title</string>
     <string name="create_chip">Create</string>
     <string name="task_description_hint">Description</string>
-    <string name="task_start_time">Start:</string>
-    <string name="task_end_time">Finish:</string>
+    <string name="task_start_time_hint">Start</string>
+    <string name="task_end_time_hint">Finish</string>
     <string name="time_delimiter" translatable="false">-</string>
     <string name="reminder_checkbox_text">Reminder</string>
     <string name="task_creation_fragment">Create Task</string>
@@ -17,4 +17,12 @@
     <string name="meal_tag">Meal</string>
     <string name="leisure_tag">Leisure</string>
     <string name="anchor_checkbox_text">Anchor</string>
+    <string name="title_empty_error">Field can\'t be empty</string>
+    <string name="date_hint">Date</string>
+    <string name="date_dialog_title">Select date</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="start_time_dialog_title">Task start time</string>
+    <string name="end_time_dialog_title">Task end time</string>
+    <string name="start_time_earlier_error">Later than end time</string>
+    <string name="time_overlapping_error">Overlapping with other tasks</string>
 </resources>

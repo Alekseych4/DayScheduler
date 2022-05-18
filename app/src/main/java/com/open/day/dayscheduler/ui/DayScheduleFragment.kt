@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.controller.adapter.DayScheduleAdapter
+import com.open.day.dayscheduler.databinding.FragmentScheduleItemBinding
+import com.open.day.dayscheduler.databinding.FragmentScheduleItemsListBinding
+import com.open.day.dayscheduler.databinding.TaskCreationFragmentBinding
 import com.open.day.dayscheduler.viewModel.TasksViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,21 +26,30 @@ import dagger.hilt.android.AndroidEntryPoint
 class DayScheduleFragment : Fragment() {
 
     private val taskViewModel: TasksViewModel by activityViewModels()
+    private var _binding: FragmentScheduleItemsListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_schedule_items_list, container, false)
-        val scheduleRecyclerView: RecyclerView = view.findViewById(R.id.schedule_items_list)
+        _binding = FragmentScheduleItemsListBinding.inflate(inflater, container, false)
 
         val adapter = DayScheduleAdapter(this.findNavController())
 
-        scheduleRecyclerView.layoutManager = LinearLayoutManager(context)
-        scheduleRecyclerView.adapter = adapter
+        binding.scheduleItemsList.layoutManager = LinearLayoutManager(context)
+        binding.scheduleItemsList.adapter = adapter
+
+        binding.addNewTaskFab.setOnClickListener(onFabClickListener())
 
         taskViewModel.tasks.observe(viewLifecycleOwner, Observer { tasks ->
             adapter.submitList(tasks)
         })
 
-        return view
+        return binding.root
+    }
+
+    private fun onFabClickListener(): View.OnClickListener {
+        return View.OnClickListener {
+            this.findNavController().navigate(DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment())
+        }
     }
 }

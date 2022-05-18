@@ -14,6 +14,10 @@ android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId "com.open.day.dayscheduler"
         minSdkVersion 24
@@ -38,9 +42,6 @@ android {
         jvmTarget = '1.8'
     }
     namespace 'com.open.day.dayscheduler'
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {

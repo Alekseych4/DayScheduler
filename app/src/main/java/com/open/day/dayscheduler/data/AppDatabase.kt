@@ -9,6 +9,10 @@ import com.open.day.dayscheduler.data.dao.TaskDao
 import com.open.day.dayscheduler.data.dao.UserDao
 import com.open.day.dayscheduler.data.entity.TaskEntity
 import com.open.day.dayscheduler.data.entity.UserEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Database(entities = [TaskEntity::class, UserEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
@@ -18,30 +22,29 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var instance: AppDatabase? = null
 
-        fun getInstance(context: Context): AppDatabase {
+        fun getInstance(context: Context, scope: CoroutineScope): AppDatabase {
             return instance ?: synchronized(this) {
-                instance ?: buildDatabase(context).also { instance = it }
+                instance ?: buildDatabase(context, scope).also { instance = it }
             }
         }
 
-        private fun buildDatabase(context: Context): AppDatabase {
+        private fun buildDatabase(context: Context, scope: CoroutineScope): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "schedule")
-                .addCallback(
-                    object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            val cursor = db.query("SELECT * FROM users WHERE is_local_user = 1 LIMIT 1;")
+                .addCallback(DbCallbackImpl(scope))
+                .build()
+        }
 
-                            if (cursor.count == 0) {
-                                val user = UserEntity(null, null, true)
-                                db.execSQL("INSERT INTO users VALUES(null, null, 1, %s);".format(user.id))
-                            }
-
-                            cursor.close()
+        private class DbCallbackImpl(private val scope: CoroutineScope) : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                instance?.let { db ->
+                    scope.launch(Dispatchers.IO) {
+                        if (db.userDao().getLocalUser() == null) {
+                            db.userDao().insertUser(UserEntity(null, null, true))
                         }
                     }
-                )
-                .build()
+                }
+            }
         }
     }
 }

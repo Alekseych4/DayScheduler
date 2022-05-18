@@ -12,7 +12,13 @@
         tools:layout="@layout/fragment_schedule_items_list">
         <action
             android:id="@+id/action_dayScheduleFragment_to_taskCreationFragment"
-            app:destination="@id/taskCreationFragment" />
+            app:destination="@id/taskCreationFragment" >
+            <argument
+                android:name="id"
+                app:argType="java.util.UUID"
+                app:nullable="true"
+                android:defaultValue="@null"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/taskCreationFragment"
@@ -21,18 +27,11 @@
         tools:layout="@layout/task_creation_fragment" >
         <argument
             android:name="id"
+            app:nullable="true"
+            android:defaultValue="@null"
             app:argType="java.util.UUID" />
         <action
             android:id="@+id/action_taskCreationFragment_to_dayScheduleFragment"
             app:destination="@id/dayScheduleFragment" />
     </fragment>
-    <action
-        android:id="@+id/action_global_taskCreationFragment"
-        app:destination="@id/taskCreationFragment">
-        <argument
-            android:name="id"
-            app:argType="java.util.UUID"
-            app:nullable="true"
-            android:defaultValue="@null"/>
-    </action>
 </navigation>

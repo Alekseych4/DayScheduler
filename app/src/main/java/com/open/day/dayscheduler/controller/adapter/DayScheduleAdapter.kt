@@ -16,7 +16,7 @@ import com.open.day.dayscheduler.exception.NoSuchRowException
 import com.open.day.dayscheduler.model.TaskModel
 import com.open.day.dayscheduler.ui.DayScheduleFragmentDirections
 import java.util.UUID
-import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.millisToHoursAndMinutes as getTime
+import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalHoursAndMinutes as getTime
 
 class DayScheduleAdapter(private val navController: NavController)
     : ListAdapter<TaskModel, DayScheduleAdapter.TasksViewHolder>(tasksComparator) {
@@ -45,7 +45,9 @@ class DayScheduleAdapter(private val navController: NavController)
 
             title.text = taskModel.title
             timeStart.text = getTime(taskModel.startTime)
-            chipGroup.addView(getChip(Resources.getSystem().getString(taskModel.tag.tagName)))
+
+            if (taskModel.tag != null)
+                chipGroup.addView(getChip(chipGroup.resources.getString(taskModel.tag.stringResId)))
 
             itemView.setOnClickListener(onListItemClickListener(taskModel.id))
         }
