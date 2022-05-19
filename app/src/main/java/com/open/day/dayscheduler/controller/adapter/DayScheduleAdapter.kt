@@ -49,7 +49,7 @@ class DayScheduleAdapter(private val navController: NavController)
             if (taskModel.tag != null)
                 chipGroup.addView(getChip(chipGroup.resources.getString(taskModel.tag.stringResId)))
 
-            itemView.setOnClickListener(onListItemClickListener(taskModel.id))
+            itemView.setOnClickListener(onListItemClickListener(taskModel.startTime, taskModel.id))
         }
 
         private fun getChip(tag: String): Chip {
@@ -60,9 +60,9 @@ class DayScheduleAdapter(private val navController: NavController)
             return chip
         }
 
-        private fun onListItemClickListener(id: UUID): View.OnClickListener {
+        private fun onListItemClickListener(date: Long, id: UUID): View.OnClickListener {
             return View.OnClickListener {
-                val action = DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment(id)
+                val action = DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment(date, id)
                 navController.navigate(action)
             }
         }

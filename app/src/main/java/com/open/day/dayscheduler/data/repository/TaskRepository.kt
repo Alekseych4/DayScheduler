@@ -53,6 +53,20 @@ class TaskRepository @Inject constructor (
             }
     }
 
+    suspend fun getTasksList(interval: DateInterval): List<TaskModel> {
+        val user = userRepository.getLocalUser()
+
+        return taskDao.getByTimeRangeSuspendable(interval.fromDate, interval.toDate)
+            .map {
+                TaskModel(
+                    it.id, it.title,
+                    if (it.tag == null) null else Tag.valueOf(it.tag),
+                    it.startTime, it.isReminder,
+                    it.isAnchor, it.endTime, it.description
+                )
+            }
+    }
+
     suspend fun getTaskById(id: UUID): TaskModel? {
         val entity = taskDao.getById(id)
         return if (entity == null) {

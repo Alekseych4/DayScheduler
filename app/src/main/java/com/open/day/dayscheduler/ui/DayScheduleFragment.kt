@@ -4,20 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.controller.adapter.DayScheduleAdapter
-import com.open.day.dayscheduler.databinding.FragmentScheduleItemBinding
 import com.open.day.dayscheduler.databinding.FragmentScheduleItemsListBinding
-import com.open.day.dayscheduler.databinding.TaskCreationFragmentBinding
+import com.open.day.dayscheduler.util.TimeCountingUtils
 import com.open.day.dayscheduler.viewModel.TasksViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Calendar
 
 /**
  * A fragment representing a list of Items.
@@ -39,17 +38,61 @@ class DayScheduleFragment : Fragment() {
         binding.scheduleItemsList.adapter = adapter
 
         binding.addNewTaskFab.setOnClickListener(onFabClickListener())
+        binding.bottomAppBar.setOnMenuItemClickListener(onMenuItemClickListener())
 
-        taskViewModel.tasks.observe(viewLifecycleOwner, Observer { tasks ->
+        taskViewModel.tasks.observe(viewLifecycleOwner) { tasks ->
+            if (tasks.isEmpty()) {
+                binding.emptyScheduleTextView.visibility = View.VISIBLE
+                binding.scheduleItemsList.visibility = View.GONE
+            } else {
+                binding.scheduleItemsList.visibility = View.VISIBLE
+                binding.emptyScheduleTextView.visibility = View.GONE
+            }
             adapter.submitList(tasks)
-        })
+        }
+
+        taskViewModel.date.observe(viewLifecycleOwner) {
+            binding.dateInAppBarText.text = TimeCountingUtils.utcMillisToLocalDayDateMonth(it)
+        }
 
         return binding.root
     }
 
     private fun onFabClickListener(): View.OnClickListener {
         return View.OnClickListener {
-            this.findNavController().navigate(DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment())
+            taskViewModel.date.value?.let {
+                this.findNavController().navigate(DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment(it))
+            }
+        }
+    }
+
+    private fun onMenuItemClickListener(): Toolbar.OnMenuItemClickListener {
+        return Toolbar.OnMenuItemClickListener {
+            when(it.itemId) {
+                R.id.calendar_menu_item -> {
+                    val selection = Calendar.getInstance()
+                    taskViewModel.date.value?.let { date ->
+                        selection.timeInMillis = TimeCountingUtils.addOffsetToMillis(date)
+                    }
+
+                    val picker = MaterialDatePicker.Builder.datePicker()
+                        .setTitleText(this.resources.getString(R.string.date_dialog_title))
+                        .setSelection(selection.timeInMillis)
+                        .build()
+
+                    picker.addOnPositiveButtonClickListener { res ->
+                        taskViewModel.setDate(res)
+
+                    }
+
+                    picker.show(this.childFragmentManager, "listDatePicker")
+
+                    return@OnMenuItemClickListener true
+                }
+
+                R.id.user_profile_menu_item -> {return@OnMenuItemClickListener true}
+                else -> return@OnMenuItemClickListener false
+            }
         }
     }
 }

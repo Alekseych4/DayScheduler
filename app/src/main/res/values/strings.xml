@@ -25,4 +25,7 @@
     <string name="end_time_dialog_title">Task end time</string>
     <string name="start_time_earlier_error">Later than end time</string>
     <string name="time_overlapping_error">Overlapping with other tasks</string>
+    <string name="user_profile_string">Profile</string>
+    <string name="calendar_string">Calendar</string>
+    <string name="time_scope_error">Out of day scope</string>
 </resources>

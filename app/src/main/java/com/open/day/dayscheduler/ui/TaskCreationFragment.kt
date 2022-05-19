@@ -60,10 +60,11 @@ class TaskCreationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         taskId = args.id
+        viewModel.setTaskDate(args.date)
 
         if (taskId == null) {
             val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
-            viewModel.date.value = calendar.timeInMillis
+            viewModel.taskDate.value?.let { calendar.timeInMillis = it }
             viewModel.startTime.value = calendar.timeInMillis
             //FIXME: possible bug when startTime.value == 23:59
             calendar.add(Calendar.MINUTE, 1)
@@ -98,7 +99,7 @@ class TaskCreationFragment : Fragment() {
 
         viewModel.title.observe(viewLifecycleOwner, Observer { setTitle(it) })
         viewModel.startTime.observe(viewLifecycleOwner, Observer { setStartTime(it) })
-        viewModel.date.observe(viewLifecycleOwner, Observer { setDate(it) })
+        viewModel.taskDate.observe(viewLifecycleOwner, Observer { setDate(it) })
         viewModel.endTime.observe(viewLifecycleOwner, Observer { setEndTime(it) })
         viewModel.isAnchor.observe(viewLifecycleOwner, Observer { setAnchorCheckBox(it) })
         viewModel.isReminder.observe(viewLifecycleOwner, Observer { setReminderCheckBox(it) })
@@ -132,9 +133,18 @@ class TaskCreationFragment : Fragment() {
             viewModel.setDescription(binding.newTaskDescriptionEditText.text.toString())
             viewModel.validateTime()
 
-            if (!hasError()) {
-                viewModel.saveCurrentTask()
-                navController.navigate(TaskCreationFragmentDirections.actionTaskCreationFragmentToDayScheduleFragment())
+            viewModel.spinner.observe(viewLifecycleOwner) {
+                if (it) binding.newTaskProgressIndicator.show()
+
+                if (!hasError() && !it) {
+                    viewModel.saveCurrentTask()
+                    binding.newTaskProgressIndicator.hide()
+                    navController.navigate(TaskCreationFragmentDirections.actionTaskCreationFragmentToDayScheduleFragment())
+                }
+
+                if (!it) {
+                    binding.newTaskProgressIndicator.hide()
+                }
             }
         }
     }
@@ -184,7 +194,7 @@ class TaskCreationFragment : Fragment() {
     private fun onDateClickListener(): View.OnClickListener {
         return View.OnClickListener { view ->
             val calendar = Calendar.getInstance()
-            viewModel.date.value?.let { calendar.timeInMillis = it }
+            viewModel.taskDate.value?.let { calendar.timeInMillis = it }
 
             val constraints = CalendarConstraints.Builder()
                 .setStart(calendar.timeInMillis)
@@ -204,7 +214,7 @@ class TaskCreationFragment : Fragment() {
 //                selectedLocal.clear()
 //                selectedLocal.set(selectedUtc.get(Calendar.YEAR), selectedUtc.get(Calendar.MONTH), selectedUtc.get(Calendar.DATE))
 
-                viewModel.date.value = it
+                viewModel.setTaskDate(it)
             }
 
             picker.show(this.childFragmentManager, "datePicker")

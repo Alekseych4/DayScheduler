@@ -12,6 +12,7 @@ import com.open.day.dayscheduler.model.TaskModel
 import com.open.day.dayscheduler.util.TimeCountingUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
@@ -25,11 +26,15 @@ class TasksViewModel @Inject constructor(
 
     private val _tasks: MutableLiveData<List<TaskModel>> = MutableLiveData()
     val tasks: LiveData<List<TaskModel>> = _tasks
+    private lateinit var tasksForDate: List<TaskModel>
 
     private val _task: MutableLiveData<TaskModel?> = MutableLiveData()
 
     val title: MutableLiveData<String> = MutableLiveData()
-    val date: MutableLiveData<Long> = MutableLiveData()
+    private val _date: MutableLiveData<Long> = MutableLiveData()
+    val date: LiveData<Long> = _date
+    private val _taskDate: MutableLiveData<Long> = MutableLiveData()
+    val taskDate: LiveData<Long> = _taskDate
     val startTime: MutableLiveData<Long> = MutableLiveData()
     val endTime: MutableLiveData<Long?> = MutableLiveData()
     val isAnchor: MutableLiveData<Boolean> = MutableLiveData()
@@ -49,6 +54,10 @@ class TasksViewModel @Inject constructor(
     val spinner: LiveData<Boolean> = _spinner
 
     init {
+        _date.value = Calendar.getInstance(TimeZone.getTimeZone("UTC")).timeInMillis
+        _taskDate.value = _date.value
+        _spinner.value = false
+
         viewModelScope.launch {
             taskRepository.getTasks(TimeCountingUtils.getCurrentDayInterval())
                 .collect { _tasks.value = it }
@@ -99,8 +108,20 @@ class TasksViewModel @Inject constructor(
     }
 
     private fun updateLocalTasks() {
-        launchDataLoad { taskRepository.getTasks(TimeCountingUtils.getCurrentDayInterval())
-            .collect{ _tasks.value = it }
+        launchDataLoad {
+            //TODO: add exception handling
+            _date.value?.let { date ->
+                taskRepository.getTasks(TimeCountingUtils.getDayInterval(date))
+                    .collect{ _tasks.value = it }
+            }
+        }
+    }
+
+    private fun getLocalTasksForDate(date: Long?): Job {
+        return viewModelScope.launch {
+            date?.let {
+                tasksForDate = taskRepository.getTasksList(TimeCountingUtils.getDayInterval(it))
+            }
         }
     }
 
@@ -137,7 +158,6 @@ class TasksViewModel @Inject constructor(
         _task.value?.isAnchor?.let { setIsAnchor(it) }
         _task.value?.isReminder?.let { setIsReminder(it) }
         setTag(_task.value?.tag)
-        date.value = _task.value?.startTime
     }
 
     fun setTitle(titleText: String?) {
@@ -176,33 +196,58 @@ class TasksViewModel @Inject constructor(
         endTime.value = endTimeMillis
     }
 
+    /**
+     * Should observe _spinner in the UI to wait till validation ends
+     */
     fun validateTime() {
         val s = startTime.value
         val e = endTime.value
+        var dayTime: Long = 0
+
+        _taskDate.value?.let {
+            dayTime = it
+        }
+
+        if (s != null) {
+            if (TimeCountingUtils.isOutOfDayScope(dayTime, s, e)) {
+                _startError.value = R.string.time_scope_error
+                _endError.value = R.string.time_scope_error
+            }
+        }
 
         if (isReminder.value == false && s != null && e != null) {
             if (s >= e) {
                 _startError.value = R.string.start_time_earlier_error
-            } else if (isTaskOverlapsExistingTasks(s, e)) {
-                _startError.value = R.string.time_overlapping_error
-                _endError.value = R.string.time_overlapping_error
             }
+            isTaskOverlapsExistingTasks(s, e)
         }
     }
 
-    private fun isTaskOverlapsExistingTasks(newS: Long, newE: Long): Boolean {
-        return _tasks.value?.stream()
-            ?.anyMatch {
-                val oldE = it.endTime
-                val oldS = it.startTime
-                var equalIds = false
-                it.id?.let { listId ->
-                    equalIds = listId == _task.value?.id
+    private fun isTaskOverlapsExistingTasks(newS: Long, newE: Long) {
+        //TODO: refactor this logic
+        _spinner.value = true
+        val job = getLocalTasksForDate(_taskDate.value)
+
+        job.invokeOnCompletion {
+            val overlaps = tasksForDate.stream()
+                .anyMatch {
+                    val oldE = it.endTime
+                    val oldS = it.startTime
+                    var equalIds = false
+                    it.id?.let { listId ->
+                        equalIds = listId == _task.value?.id
+                    }
+
+                    if (oldE == null || equalIds) false else TimeCountingUtils
+                        .areTimePeriodsOverlap(newS, newE, oldS, oldE)
                 }
 
-                if (oldE == null || equalIds) false else TimeCountingUtils
-                    .areTimePeriodsOverlap(newS, newE, oldS, oldE)
-            } ?: false
+            if (overlaps) {
+                _startError.value = R.string.time_overlapping_error
+                _endError.value = R.string.time_overlapping_error
+            }
+            _spinner.value = false
+        }
     }
 
     fun setDescription(descriptionText: String?) {
@@ -219,5 +264,14 @@ class TasksViewModel @Inject constructor(
 
     fun setTag(tagInstance: Tag?) {
         tag.value = tagInstance
+    }
+
+    fun setDate(date: Long) {
+        _date.value = date
+        updateLocalTasks()
+    }
+
+    fun setTaskDate(date: Long) {
+        _taskDate.value = date
     }
 }

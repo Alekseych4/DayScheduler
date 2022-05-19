@@ -21,8 +21,15 @@ interface TaskDao {
     suspend fun deleteById(taskId: UUID)
 
     //TODO: this query is probably wrong
-    @Query("SELECT * FROM tasks WHERE start_time >= :start AND end_time <= :end")
+    @Query("SELECT * FROM tasks " +
+            "WHERE (start_time >= :start AND start_time < :end AND end_time <= :end AND end_time > :start)" +
+            "ORDER BY start_time ASC")
     fun getByTimeRange(start: Long, end: Long): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks " +
+            "WHERE (start_time >= :start AND start_time < :end AND end_time <= :end AND end_time > :start)" +
+            "ORDER BY start_time ASC")
+    suspend fun getByTimeRangeSuspendable(start: Long, end: Long): List<TaskEntity>
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     suspend fun getById(taskId: UUID): TaskEntity?

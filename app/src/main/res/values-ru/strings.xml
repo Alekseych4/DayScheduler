@@ -25,4 +25,7 @@
     <string name="end_time_dialog_title">Время завершения задачи</string>
     <string name="start_time_earlier_error">Позже времени окончания</string>
     <string name="time_overlapping_error">Пересечение с другими задачами</string>
+    <string name="user_profile_string">Профиль</string>
+    <string name="calendar_string">Календарь</string>
+    <string name="time_scope_error">Выход за границы дня</string>
 </resources>

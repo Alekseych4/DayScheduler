@@ -18,6 +18,9 @@
                 app:argType="java.util.UUID"
                 app:nullable="true"
                 android:defaultValue="@null"/>
+            <argument
+                android:name="date"
+                app:argType="long" />
         </action>
     </fragment>
     <fragment
@@ -33,5 +36,8 @@
         <action
             android:id="@+id/action_taskCreationFragment_to_dayScheduleFragment"
             app:destination="@id/dayScheduleFragment" />
+        <argument
+            android:name="date"
+            app:argType="long" />
     </fragment>
 </navigation>
