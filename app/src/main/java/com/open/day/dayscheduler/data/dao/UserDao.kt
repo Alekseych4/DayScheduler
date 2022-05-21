@@ -3,21 +3,30 @@ package com.open.day.dayscheduler.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.open.day.dayscheduler.data.entity.UserEntity
 import java.util.UUID
 
 @Dao
-interface UserDao {
+abstract class UserDao {
     @Insert
-    suspend fun insertUser(user: UserEntity)
+    abstract suspend fun insertUser(user: UserEntity)
 
     @Update
-    suspend fun updateUser(user: UserEntity)
+    abstract suspend fun updateUser(user: UserEntity)
 
     @Query("DELETE FROM users WHERE id = :userId")
-    suspend fun deleteById(userId: UUID)
+    abstract suspend fun deleteById(userId: UUID)
 
     @Query("SELECT * FROM users WHERE is_local_user = 1 LIMIT 1")
-    suspend fun getLocalUser(): UserEntity?
+    abstract suspend fun getLocalUserIfExists(): UserEntity?
+
+    @Transaction
+    open suspend fun getLocalUser(): UserEntity? {
+        val entity = getLocalUserIfExists()
+        if (entity == null)
+            insertUser(UserEntity(null, null, true))
+        return getLocalUserIfExists()
+    }
 }

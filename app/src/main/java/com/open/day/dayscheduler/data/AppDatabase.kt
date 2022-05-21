@@ -39,9 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 instance?.let { db ->
                     scope.launch(Dispatchers.IO) {
-                        if (db.userDao().getLocalUser() == null) {
-                            db.userDao().insertUser(UserEntity(null, null, true))
-                        }
+                        db.userDao().getLocalUser()
                     }
                 }
             }

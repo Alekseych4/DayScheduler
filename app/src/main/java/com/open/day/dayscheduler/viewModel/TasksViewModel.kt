@@ -12,7 +12,6 @@ import com.open.day.dayscheduler.model.TaskModel
 import com.open.day.dayscheduler.util.TimeCountingUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
@@ -209,6 +208,7 @@ class TasksViewModel @Inject constructor(
         }
 
         if (s != null) {
+            //FIXME: separate logic based on isReminder
             if (TimeCountingUtils.isOutOfDayScope(dayTime, s, e)) {
                 _startError.value = R.string.time_scope_error
                 _endError.value = R.string.time_scope_error
@@ -273,5 +273,14 @@ class TasksViewModel @Inject constructor(
 
     fun setTaskDate(date: Long) {
         _taskDate.value = date
+        val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = date
+        setStartTime(calendar.timeInMillis)
+        calendar.add(Calendar.MINUTE, 1)
+        setEndTime(calendar.timeInMillis)
+    }
+
+    fun setError(errorMsg: String) {
+        _error.value = errorMsg
     }
 }

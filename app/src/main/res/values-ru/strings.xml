@@ -28,4 +28,9 @@
     <string name="user_profile_string">Профиль</string>
     <string name="calendar_string">Календарь</string>
     <string name="time_scope_error">Выход за границы дня</string>
+    <string name="do_not_sign_in">Не сейчас</string>
+    <string name="welcome">"Добро пожаловать, "</string>
+    <string name="sign_in_error">Не удалось войти с помощью Google</string>
+    <string name="local_usage_prompt">Созданные задачи будут доступны только на этом устройстве</string>
+    <string name="sign_in_text">Войти</string>
 </resources>

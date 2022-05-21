@@ -23,13 +23,13 @@ class TaskRepository @Inject constructor (
         if (taskModel.id == null) {
             TaskEntity(
                 taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
-                taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, user.id
+                taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, user.id!!
             )
                 .also { taskDao.insertTask(it) }
         } else {
             TaskEntity(
                 taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
-                taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, user.id, taskModel.id
+                taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, user.id!!, taskModel.id
             )
                 .also { taskDao.updateTask(it) }
         }
@@ -42,7 +42,7 @@ class TaskRepository @Inject constructor (
     suspend fun getTasks(interval: DateInterval): Flow<List<TaskModel>> {
         val user = userRepository.getLocalUser()
 
-        return taskDao.getByTimeRange(interval.fromDate, interval.toDate)
+        return taskDao.getByTimeRange(interval.fromDate, interval.toDate, user.id!!)
             .map {
                 it.map { entity -> TaskModel(
                     entity.id, entity.title,
@@ -56,7 +56,7 @@ class TaskRepository @Inject constructor (
     suspend fun getTasksList(interval: DateInterval): List<TaskModel> {
         val user = userRepository.getLocalUser()
 
-        return taskDao.getByTimeRangeSuspendable(interval.fromDate, interval.toDate)
+        return taskDao.getByTimeRangeSuspendable(interval.fromDate, interval.toDate, user.id!!)
             .map {
                 TaskModel(
                     it.id, it.title,

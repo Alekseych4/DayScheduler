@@ -23,11 +23,13 @@ class LocalDatabaseModule {
         return AppDatabase.getInstance(context, CoroutineScope(SupervisorJob()))
     }
 
+    @Singleton
     @Provides
     fun provideTaskDao(appDatabase: AppDatabase): TaskDao {
         return appDatabase.taskDao()
     }
 
+    @Singleton
     @Provides
     fun provideUserDao(appDatabase: AppDatabase): UserDao {
         return appDatabase.userDao()

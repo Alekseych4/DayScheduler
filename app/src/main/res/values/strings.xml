@@ -28,4 +28,9 @@
     <string name="user_profile_string">Profile</string>
     <string name="calendar_string">Calendar</string>
     <string name="time_scope_error">Out of day scope</string>
+    <string name="do_not_sign_in">Not now</string>
+    <string name="welcome">Welcome,</string>
+    <string name="sign_in_error">Error happened while signing in with Google</string>
+    <string name="local_usage_prompt">Created tasks will be available only on this device</string>
+    <string name="sign_in_text">Sign in</string>
 </resources>
