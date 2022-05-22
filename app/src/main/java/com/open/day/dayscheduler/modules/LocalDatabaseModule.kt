@@ -4,6 +4,7 @@ import android.content.Context
 import com.open.day.dayscheduler.data.AppDatabase
 import com.open.day.dayscheduler.data.dao.TaskDao
 import com.open.day.dayscheduler.data.dao.UserDao
+import com.open.day.dayscheduler.data.dao.UsersTasksDaoMTM
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,13 +24,21 @@ class LocalDatabaseModule {
         return AppDatabase.getInstance(context, CoroutineScope(SupervisorJob()))
     }
 
+    @Singleton
     @Provides
     fun provideTaskDao(appDatabase: AppDatabase): TaskDao {
         return appDatabase.taskDao()
     }
 
+    @Singleton
     @Provides
     fun provideUserDao(appDatabase: AppDatabase): UserDao {
         return appDatabase.userDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideUsersTasksDaoMTM(appDatabase: AppDatabase): UsersTasksDaoMTM {
+        return appDatabase.usersTasksDaoMTM()
     }
 }

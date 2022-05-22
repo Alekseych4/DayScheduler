@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.data.repository.TaskRepository
+import com.open.day.dayscheduler.data.repository.UserRepository
+import com.open.day.dayscheduler.exception.NoSuchRowException
 import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.TaskModel
+import com.open.day.dayscheduler.model.UserModel
 import com.open.day.dayscheduler.util.TimeCountingUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
@@ -21,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val userRepository: UserRepository
     ) : ViewModel() {
 
     private val _tasks: MutableLiveData<List<TaskModel>> = MutableLiveData()
@@ -41,6 +44,11 @@ class TasksViewModel @Inject constructor(
     val isReminder: MutableLiveData<Boolean> = MutableLiveData()
     val description: MutableLiveData<String?> = MutableLiveData()
     val tag: MutableLiveData<Tag?> = MutableLiveData()
+    private val _addUsers: MutableLiveData<MutableSet<UserModel>> = MutableLiveData()
+    val addUsers: LiveData<MutableSet<UserModel>> = _addUsers
+    val isLocalTask: MutableLiveData<Boolean> = MutableLiveData()
+    private val _isSignedIn: MutableLiveData<Boolean> = MutableLiveData()
+    val isSignedIn: LiveData<Boolean> = _isSignedIn
 
     private val _error: MutableLiveData<String> = MutableLiveData()
     val error: LiveData<String> = _error
@@ -50,6 +58,8 @@ class TasksViewModel @Inject constructor(
     val endError: LiveData<Int> = _endError
     private val _titleInputError: MutableLiveData<Int> = MutableLiveData()
     val titleInputError: LiveData<Int> = _titleInputError
+    private val _addUserError: MutableLiveData<Int> = MutableLiveData()
+    val addUserError: LiveData<Int> = _addUserError
     private val _spinner: MutableLiveData<Boolean> = MutableLiveData()
     val spinner: LiveData<Boolean> = _spinner
 
@@ -57,10 +67,12 @@ class TasksViewModel @Inject constructor(
         _date.value = Calendar.getInstance(TimeZone.getTimeZone("UTC")).timeInMillis
         _taskDate.value = _date.value
         _spinner.value = false
+        _addUsers.value = mutableSetOf()
+        isLocalTask.value = true
+        setIsSignedIn()
 
         viewModelScope.launch {
-            taskRepository.getTasks(TimeCountingUtils.getCurrentDayInterval())
-                .collect { _tasks.value = it }
+            _tasks.value = taskRepository.getTasksList(TimeCountingUtils.getCurrentDayInterval())
         }
     }
 
@@ -69,8 +81,11 @@ class TasksViewModel @Inject constructor(
         val startLong = startTime.value
         val rem = isReminder.value
         val anc = isAnchor.value
+        val locTask = isLocalTask.value
+        val addUsersIds = _addUsers.value
 
-        if (titleString != null && startLong != null && rem != null && anc != null) {
+
+        if (titleString != null && startLong != null && rem != null && anc != null && locTask != null && addUsersIds != null) {
             val toSave = TaskModel(
                 _task.value?.id,
                 titleString,
@@ -79,7 +94,9 @@ class TasksViewModel @Inject constructor(
                 rem,
                 anc,
                 endTime.value,
-                description.value
+                description.value,
+                addUsersIds,
+                locTask
             )
             try {
                 saveTask(toSave)
@@ -92,6 +109,8 @@ class TasksViewModel @Inject constructor(
                 isReminder.value = false
                 description.value = null
                 tag.value = null
+                _addUsers.value?.clear()
+                isLocalTask.value = false
                 updateLocalTasks()
             }
         } else {
@@ -111,8 +130,7 @@ class TasksViewModel @Inject constructor(
         launchDataLoad {
             //TODO: add exception handling
             _date.value?.let { date ->
-                taskRepository.getTasks(TimeCountingUtils.getDayInterval(date))
-                    .collect{ _tasks.value = it }
+                _tasks.value = taskRepository.getTasksList(TimeCountingUtils.getDayInterval(date))
             }
         }
     }
@@ -158,11 +176,13 @@ class TasksViewModel @Inject constructor(
         _task.value?.isAnchor?.let { setIsAnchor(it) }
         _task.value?.isReminder?.let { setIsReminder(it) }
         setTag(_task.value?.tag)
+        setIsSignedIn()
+        _task.value?.isTaskLocal.let { isLocalTask.value = it }
     }
 
     fun setTitle(titleText: String?) {
         if (titleText.isNullOrBlank()) {
-            _titleInputError.value = R.string.title_empty_error
+            _titleInputError.value = R.string.field_empty_error
         } else {
             title.value = titleText!!
         }
@@ -209,6 +229,7 @@ class TasksViewModel @Inject constructor(
         }
 
         if (s != null) {
+            //FIXME: separate logic based on isReminder
             if (TimeCountingUtils.isOutOfDayScope(dayTime, s, e)) {
                 _startError.value = R.string.time_scope_error
                 _endError.value = R.string.time_scope_error
@@ -273,5 +294,39 @@ class TasksViewModel @Inject constructor(
 
     fun setTaskDate(date: Long) {
         _taskDate.value = date
+        val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = date
+        setStartTime(calendar.timeInMillis)
+        calendar.add(Calendar.MINUTE, 1)
+        setEndTime(calendar.timeInMillis)
+    }
+
+    fun setError(errorMsg: String) {
+        _error.value = errorMsg
+    }
+
+    fun setAddUsers(email: String) {
+        if (email.isNotBlank()) {
+            viewModelScope.launch {
+                try {
+                    _addUsers.value?.add(userRepository.getUserByEmail(email))
+                } catch (e: NoSuchRowException) {
+                    _addUserError.value = R.string.user_not_found_error
+                }
+            }
+        } else {
+            _addUserError.value = R.string.field_empty_error
+        }
+    }
+
+    fun removeFromAddUsers(email: String) {
+        val userToDelete = _addUsers.value?.find { it.email == email }
+        _addUsers.value?.remove(userToDelete)
+    }
+
+    private fun setIsSignedIn() {
+        viewModelScope.launch {
+            _isSignedIn.value = userRepository.getLocalUser().isSignedIn
+        }
     }
 }

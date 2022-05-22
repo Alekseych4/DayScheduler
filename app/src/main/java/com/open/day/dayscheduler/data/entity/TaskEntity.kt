@@ -3,7 +3,6 @@ package com.open.day.dayscheduler.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.open.day.dayscheduler.model.Tag
 import java.util.UUID
 
 @Entity(tableName = "tasks")
@@ -16,5 +15,6 @@ data class TaskEntity(
     @ColumnInfo(name = "is_anchor") val isAnchor: Boolean,
     @ColumnInfo(name = "tag") val tag: String?,
     @ColumnInfo(name = "user_id") val userId: UUID,
+    @ColumnInfo(name = "is_task_local") val isTaskLocal: Boolean = true,
     @PrimaryKey val id: UUID = UUID.randomUUID()
 )

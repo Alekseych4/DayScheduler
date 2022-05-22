@@ -17,7 +17,7 @@
     <string name="meal_tag">Meal</string>
     <string name="leisure_tag">Leisure</string>
     <string name="anchor_checkbox_text">Anchor</string>
-    <string name="title_empty_error">Field can\'t be empty</string>
+    <string name="field_empty_error">Field can\'t be empty</string>
     <string name="date_hint">Date</string>
     <string name="date_dialog_title">Select date</string>
     <string name="dialog_cancel">Cancel</string>
@@ -28,4 +28,13 @@
     <string name="user_profile_string">Profile</string>
     <string name="calendar_string">Calendar</string>
     <string name="time_scope_error">Out of day scope</string>
+    <string name="do_not_sign_in">Not now</string>
+    <string name="welcome">Welcome,</string>
+    <string name="sign_in_error">Error happened while signing in with Google</string>
+    <string name="local_usage_prompt">Created tasks will be available only on this device</string>
+    <string name="sign_in_text">Sign in</string>
+    <string name="save_local_task">Save only on this device</string>
+    <string name="add_user_hint">Add user to task</string>
+    <string name="add_user_helper">Input user\'s email</string>
+    <string name="user_not_found_error">User is not found</string>
 </resources>

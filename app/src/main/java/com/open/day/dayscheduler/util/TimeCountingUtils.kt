@@ -73,6 +73,7 @@ class TimeCountingUtils {
 
         fun isOutOfDayScope(day: Long, s: Long, e: Long? = s): Boolean {
             val scope = getDayInterval(day)
+            //FIXME: should provide different method for the case when e == s (isReminder == true)
             return !(s in scope.fromDate until scope.toDate && e in (scope.fromDate - 1) .. scope.toDate)
         }
     }

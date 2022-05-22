@@ -7,17 +7,20 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.open.day.dayscheduler.data.dao.TaskDao
 import com.open.day.dayscheduler.data.dao.UserDao
+import com.open.day.dayscheduler.data.dao.UsersTasksDaoMTM
 import com.open.day.dayscheduler.data.entity.TaskEntity
 import com.open.day.dayscheduler.data.entity.UserEntity
+import com.open.day.dayscheduler.data.entity.UsersTasksEntityMTM
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [TaskEntity::class, UserEntity::class], version = 1, exportSchema = false)
+@Database(entities = [TaskEntity::class, UserEntity::class, UsersTasksEntityMTM::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun userDao(): UserDao
+    abstract fun usersTasksDaoMTM(): UsersTasksDaoMTM
 
     companion object {
         @Volatile private var instance: AppDatabase? = null
@@ -39,9 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 instance?.let { db ->
                     scope.launch(Dispatchers.IO) {
-                        if (db.userDao().getLocalUser() == null) {
-                            db.userDao().insertUser(UserEntity(null, null, true))
-                        }
+                        db.userDao().getLocalUser()
                     }
                 }
             }

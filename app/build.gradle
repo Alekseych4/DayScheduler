@@ -9,6 +9,7 @@ plugins {
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 31
@@ -67,6 +68,8 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"
+    //oauth
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

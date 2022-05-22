@@ -11,4 +11,5 @@
 <!--  Customized colors  -->
     <color name="deep_purple_50">#EDE7F6</color>
     <color name="grey">#bbb5c3</color>
+    <color name="dark_blue">#042CFF</color>
 </resources>
