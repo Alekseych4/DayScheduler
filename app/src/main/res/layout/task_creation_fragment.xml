@@ -1,140 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/new_task_progress_indicator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        tools:context=".TaskCreationFragment">
+        android:indeterminate="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/margin_big_32dp"
+        android:visibility="invisible"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/new_task_title_layout"
-            android:layout_width="0dp"
+    <androidx.core.widget.NestedScrollView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingBottom="100dp"
+        android:clipToPadding="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:hint="@string/task_title_hint"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:padding="16dp"
+            tools:context=".ui.TaskCreationFragment">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/new_task_title_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/new_task_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/padding_normal_16dp"
-            android:paddingBottom="@dimen/padding_normal_16dp"
-            android:paddingStart="@dimen/padding_small_8dp"
-            android:textAppearance="@style/TextAppearance.DayScheduler.Body2"
-            app:layout_constraintTop_toBottomOf="@id/new_task_title_layout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:text="Вс, 12 дек"/>
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/reminder_checkbox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/new_task_date"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:text="@string/reminder_checkbox_text"/>
-
-        <LinearLayout
-            android:id="@+id/new_task_time_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reminder_checkbox"
-            android:orientation="horizontal"
-            android:paddingStart="@dimen/padding_small_8dp"
-            android:paddingTop="@dimen/padding_normal_16dp"
-            android:paddingBottom="@dimen/padding_normal_16dp">
-
-            <com.google.android.material.textview.MaterialTextView
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_title_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.DayScheduler.Body2"
-                android:text="@string/task_start_time"/>
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:hint="@string/task_title_hint"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorEnabled="true">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/new_task_time_start"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_title_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_date_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.DayScheduler.Body2"
-                tools:text="13:00"/>
+                app:layout_constraintTop_toBottomOf="@id/new_task_title_layout"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:hint="@string/date_hint"
+                app:errorEnabled="true"
+                app:endIconDrawable="@drawable/ic_calendar_today_24"
+                app:endIconMode="custom"
+                app:errorIconDrawable="@null"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:enabled="false"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/reminder_checkbox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.DayScheduler.Body2"
-                android:text="@string/task_end_time"/>
+                app:layout_constraintTop_toBottomOf="@id/new_task_date_layout"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/anchor_checkbox"
+                android:text="@string/reminder_checkbox_text"/>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/new_task_time_end"
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/anchor_checkbox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.DayScheduler.Body2"
-                tools:text="14:00"/>
+                app:layout_constraintTop_toBottomOf="@id/new_task_date_layout"
+                app:layout_constraintLeft_toRightOf="@id/reminder_checkbox"
+                app:layout_constraintRight_toRightOf="parent"
+                android:text="@string/anchor_checkbox_text"/>
 
-        </LinearLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/new_task_chip_group"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:scrollbars="horizontal"
-            android:paddingTop="@dimen/padding_small_8dp"
-            android:paddingBottom="@dimen/padding_small_8dp"
-            app:layout_constraintTop_toBottomOf="@+id/new_task_time_layout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/new_task_create_chip"
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/new_task_barrier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/create_chip"
-                app:chipIcon="@drawable/ic_create_chip_24"
-                />
+                app:barrierMargin="@dimen/margin_small_8dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="reminder_checkbox,anchor_checkbox"/>
 
-        </com.google.android.material.chip.ChipGroup>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/new_task_description_input_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/new_task_chip_group"
-            android:hint="@string/task_description_hint"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/new_task_description_edit_text"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_time_start_layout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:scrollbars="vertical"
-                android:inputType="textMultiLine"
-                android:minLines="@integer/new_task_description_min_lines"/>
+                android:layout_marginEnd="@dimen/margin_tiny_4dp"
+                app:layout_constraintTop_toBottomOf="@id/new_task_barrier"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/new_task_time_end_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorEnabled="true"
+                android:hint="@string/task_start_time_hint"
+                app:endIconDrawable="@drawable/ic_access_time_24"
+                app:endIconMode="custom"
+                app:errorIconDrawable="@null">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_time_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:enabled="false"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_time_end_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_tiny_4dp"
+                app:layout_constraintTop_toBottomOf="@id/new_task_barrier"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/new_task_time_start_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorEnabled="true"
+                android:hint="@string/task_end_time_hint"
+                app:endIconDrawable="@drawable/ic_access_time_24"
+                app:endIconMode="custom"
+                app:errorIconDrawable="@null">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_time_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:enabled="false"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/new_task_chip_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:scrollbars="horizontal"
+                android:paddingTop="@dimen/padding_small_8dp"
+                android:paddingBottom="@dimen/padding_small_8dp"
+                app:layout_constraintTop_toBottomOf="@id/new_task_time_start_layout"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/new_task_create_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/create_chip"
+                    app:chipIcon="@drawable/ic_create_chip_24" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_description_input_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/new_task_chip_group"
+                android:hint="@string/task_description_hint"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_description_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="vertical"
+                    android:inputType="textMultiLine"
+                    android:minLines="@integer/new_task_description_min_lines"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        app:fabAlignmentMode="center"
+        app:fabAnimationMode="slide" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_save_new_task_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_create_chip_24"
+        app:layout_anchor="@id/bottom_app_bar" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
