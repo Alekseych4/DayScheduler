@@ -5,6 +5,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,7 +25,7 @@ import com.google.android.material.timepicker.TimeFormat
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.databinding.TaskCreationFragmentBinding
 import com.open.day.dayscheduler.model.Tag
-import com.open.day.dayscheduler.model.TaskModel
+import com.open.day.dayscheduler.model.UserModel
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalDayDateMonth
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalHoursAndMinutes
 import com.open.day.dayscheduler.viewModel.TasksViewModel
@@ -44,6 +45,7 @@ class TaskCreationFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         _binding = TaskCreationFragmentBinding.inflate(inflater, container, false)
+        hideAllErrors()
 
         Tag.values().forEach {
             val chip = Chip(this.context)
@@ -83,7 +85,6 @@ class TaskCreationFragment : Fragment() {
         binding.newTaskDescriptionEditText.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 binding.newTaskDescriptionInputLayout.error = null
-                viewModel.setTitle(binding.newTaskDescriptionEditText.text.toString())
             }
         }
         binding.newTaskTitleEditText.setOnFocusChangeListener { v, hasFocus ->
@@ -96,6 +97,16 @@ class TaskCreationFragment : Fragment() {
         binding.newTaskDateLayout.setEndIconOnClickListener(onDateClickListener())
         binding.newTaskTimeStartLayout.setEndIconOnClickListener(onSetTimePicker(R.id.new_task_time_start))
         binding.newTaskTimeEndLayout.setEndIconOnClickListener(onSetTimePicker(R.id.new_task_time_end))
+        binding.newTaskAddUserLayout.setEndIconOnClickListener{
+            binding.newTaskAddUserLayout.error = null
+            viewModel.setAddUsers(binding.newTaskAddUserText.text.toString())
+        }
+        binding.newTaskAddUserText.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                binding.newTaskAddUserLayout.error = null
+            }
+        }
+        binding.localSaveCheckbox.setOnClickListener(onSaveLocallyCheckboxClick())
 
         viewModel.title.observe(viewLifecycleOwner, Observer { setTitle(it) })
         viewModel.startTime.observe(viewLifecycleOwner, Observer { setStartTime(it) })
@@ -107,6 +118,9 @@ class TaskCreationFragment : Fragment() {
         viewModel.tag.observe(viewLifecycleOwner, Observer {
             if (it != null) setTag(resources.getString(it.stringResId))
         })
+        viewModel.isSignedIn.observe(viewLifecycleOwner) { manageLayoutIfSignedIn(it) }
+        viewModel.isLocalTask.observe(viewLifecycleOwner) { binding.localSaveCheckbox.isChecked = it }
+        viewModel.addUsers.observe(viewLifecycleOwner) { updateAddedUsersChipGroup(it) }
 
         // Errors
         viewModel.titleInputError.observe(viewLifecycleOwner, Observer {
@@ -115,9 +129,13 @@ class TaskCreationFragment : Fragment() {
         viewModel.startError.observe(viewLifecycleOwner, Observer {
             binding.newTaskTimeStartLayout.error = resources.getString(it)
         })
-        viewModel.endError.observe(viewLifecycleOwner, Observer {
+        viewModel.endError.observe(viewLifecycleOwner) {
             binding.newTaskTimeEndLayout.error = resources.getString(it)
-        })
+        }
+        viewModel.addUserError.observe(viewLifecycleOwner) {
+            binding.newTaskAddUserLayout.error = resources.getString(it)
+        }
+
     }
 
     override fun onDestroyView() {
@@ -147,15 +165,6 @@ class TaskCreationFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun afterTitleTextChanged(title: String) {
-        binding.newTaskTitleLayout.error = null
-        viewModel.setTitle(title)
-    }
-
-    private fun afterDescriptionTextChanged(description: String) {
-        viewModel.description.value = description
     }
 
     private fun onReminderCheckboxClickListener(): View.OnClickListener {
@@ -275,18 +284,6 @@ class TaskCreationFragment : Fragment() {
         }
     }
 
-    private fun setFields(task: TaskModel?) {
-        if (task != null) {
-            setTitle(task.title)
-            setDate(task.startTime)
-            setStartTime(task.startTime)
-            setEndTime(task.endTime)
-            setReminderCheckBox(task.isReminder)
-            setAnchorCheckBox(task.isAnchor)
-            setDescription(task.description)
-        }
-    }
-
     private fun setTitle(title: String) {
         binding.newTaskTitleLayout.error = null
         binding.newTaskTitleEditText.setText(title)
@@ -343,6 +340,60 @@ class TaskCreationFragment : Fragment() {
     private fun hasError(): Boolean {
         return binding.newTaskDateLayout.error != null || binding.newTaskTimeStartLayout.error != null ||
                 binding.newTaskTitleLayout.error != null || binding.newTaskTimeEndLayout.error != null ||
-                binding.newTaskDescriptionInputLayout.error != null
+                binding.newTaskDescriptionInputLayout.error != null || binding.newTaskAddUserLayout.error != null
+    }
+
+    private fun hideAllErrors() {
+        binding.newTaskDateLayout.error = null
+        binding.newTaskTimeStartLayout.error = null
+        binding.newTaskTitleLayout.error = null
+        binding.newTaskTimeEndLayout.error = null
+        binding.newTaskDescriptionInputLayout.error = null
+        binding.newTaskAddUserLayout.error = null
+    }
+
+    private fun manageLayoutIfSignedIn(isSignedIn: Boolean) {
+        if (isSignedIn) {
+            binding.newTaskAddUserLayout.visibility = View.VISIBLE
+            binding.addedUsersChipGroup.visibility = View.VISIBLE
+            binding.localSaveCheckbox.visibility = View.VISIBLE
+        } else {
+            binding.newTaskAddUserLayout.visibility = View.GONE
+            binding.addedUsersChipGroup.visibility = View.GONE
+            binding.localSaveCheckbox.visibility = View.GONE
+        }
+    }
+
+    private fun updateAddedUsersChipGroup(usersList: MutableSet<UserModel>) {
+        usersList.forEach {
+            val chip = Chip(binding.addedUsersChipGroup.context)
+
+            chip.text = it.email
+            chip.isCloseIconVisible = true
+            chip.height = ChipGroup.LayoutParams.WRAP_CONTENT
+            chip.width = ChipGroup.LayoutParams.WRAP_CONTENT
+
+            chip.setOnCloseIconClickListener { v ->
+                val rChip = v as Chip
+                viewModel.removeFromAddUsers(rChip.text.toString())
+                binding.addedUsersChipGroup.removeView(v)
+            }
+
+            binding.addedUsersChipGroup.addView(chip)
+        }
+    }
+
+    private fun onSaveLocallyCheckboxClick(): View.OnClickListener {
+        return View.OnClickListener {
+            val checkbox = it as CheckBox
+            if (checkbox.isChecked) {
+                binding.newTaskAddUserLayout.visibility = View.GONE
+                binding.addedUsersChipGroup.visibility = View.GONE
+            } else {
+                binding.newTaskAddUserLayout.visibility = View.VISIBLE
+                binding.addedUsersChipGroup.visibility = View.VISIBLE
+            }
+            viewModel.isLocalTask.value = checkbox.isChecked
+        }
     }
 }

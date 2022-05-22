@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.open.day.dayscheduler.data.entity.UserEntity
+import com.open.day.dayscheduler.data.entity.UsersWithTasks
 import java.util.UUID
 
 @Dao
@@ -25,8 +26,17 @@ abstract class UserDao {
     @Transaction
     open suspend fun getLocalUser(): UserEntity? {
         val entity = getLocalUserIfExists()
-        if (entity == null)
+        return if (entity == null) {
             insertUser(UserEntity(null, null, true))
-        return getLocalUserIfExists()
+            getLocalUserIfExists()
+        } else entity
     }
+
+    //FIXME: make email unique
+    @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
+    abstract suspend fun getUserByEmail(email: String): UserEntity?
+
+    @Transaction
+    @Query("SELECT * FROM users")
+    abstract suspend fun getUsersWithTasks(): List<UsersWithTasks>
 }

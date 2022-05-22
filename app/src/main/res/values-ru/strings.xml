@@ -17,7 +17,7 @@
     <string name="meal_tag">Еда</string>
     <string name="leisure_tag">Досуг</string>
     <string name="anchor_checkbox_text">Фиксированное время</string>
-    <string name="title_empty_error">Поле не может быть пустым</string>
+    <string name="field_empty_error">Поле не может быть пустым</string>
     <string name="date_hint">Дата</string>
     <string name="date_dialog_title">Выберите дату</string>
     <string name="dialog_cancel">Отмена</string>
@@ -33,4 +33,8 @@
     <string name="sign_in_error">Не удалось войти с помощью Google</string>
     <string name="local_usage_prompt">Созданные задачи будут доступны только на этом устройстве</string>
     <string name="sign_in_text">Войти</string>
+    <string name="save_local_task">Сохранить только на этом устройстве</string>
+    <string name="add_user_hint">Добавить пользователя к задаче</string>
+    <string name="add_user_helper">Введите электронную почту пользователя</string>
+    <string name="user_not_found_error">Пользователь не найден</string>
 </resources>

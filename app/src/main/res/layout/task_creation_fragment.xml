@@ -22,6 +22,7 @@
         android:clipToPadding="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/new_task_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
@@ -164,13 +165,53 @@
 
             </com.google.android.material.chip.ChipGroup>
 
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/local_save_checkbox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/new_task_chip_group"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:text="@string/save_local_task"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/added_users_chip_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/local_save_checkbox"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/new_task_add_user_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/added_users_chip_group"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@null"
+                android:hint="@string/add_user_hint"
+                app:helperTextEnabled="true"
+                app:helperText="@string/add_user_helper"
+                app:endIconDrawable="@drawable/ic_account_circle_24"
+                app:endIconMode="custom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/new_task_add_user_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/new_task_description_input_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/new_task_chip_group"
+                app:layout_constraintTop_toBottomOf="@id/new_task_add_user_layout"
                 android:hint="@string/task_description_hint"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
