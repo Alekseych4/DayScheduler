@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Day Scheduler</string>
+
+    <string name="empty_schedule_list">Задачи отсутствуют</string>
+    <string name="task_title_hint">Заголовок</string>
+    <string name="create_chip">Создать</string>
+    <string name="task_description_hint">Описание</string>
+    <string name="task_start_time">Начало:</string>
+    <string name="task_end_time">Окончание:</string>
+    <string name="reminder_checkbox_text">Напоминание</string>
+    <string name="task_creation_fragment">Создать задачу</string>
+    <string name="day_schedule_fragment">Распорядок дня</string>
+</resources>
