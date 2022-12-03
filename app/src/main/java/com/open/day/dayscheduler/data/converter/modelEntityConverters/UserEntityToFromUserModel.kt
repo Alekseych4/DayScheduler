@@ -1,10 +1,10 @@
-package com.open.day.dayscheduler.data.converter
+package com.open.day.dayscheduler.data.converter.modelEntityConverters
 
 import com.open.day.dayscheduler.data.entity.UserEntity
 import com.open.day.dayscheduler.model.UserModel
 import java.util.UUID
 
-class UserEntityToFromUserModelConverter {
+class UserEntityToFromUserModel {
     companion object {
         fun convertUserEntity(entity: UserEntity): UserModel {
             return UserModel(

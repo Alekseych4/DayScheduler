@@ -1,4 +1,4 @@
-package com.open.day.dayscheduler.data.converter
+package com.open.day.dayscheduler.data.converter.modelEntityConverters
 
 import com.open.day.dayscheduler.data.entity.TaskEntity
 import com.open.day.dayscheduler.data.entity.TaskWithUsers
@@ -7,7 +7,7 @@ import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.TaskModel
 import java.util.stream.Collectors
 
-class TaskEntityToFromTaskModelConverter {
+class TaskEntityToFromTaskModel {
     companion object {
         fun convertTaskWithUsersToTaskModel(taskWithUsers: TaskWithUsers): TaskModel {
             return TaskModel(
@@ -20,7 +20,7 @@ class TaskEntityToFromTaskModelConverter {
                 taskWithUsers.taskEntity.endTime,
                 taskWithUsers.taskEntity.description,
                 taskWithUsers.userEntities.stream()
-                    .map { UserEntityToFromUserModelConverter.convertUserEntity(it) }
+                    .map { UserEntityToFromUserModel.convertUserEntity(it) }
                     .collect(Collectors.toSet()),
                 taskWithUsers.taskEntity.isTaskLocal
             )
@@ -37,7 +37,7 @@ class TaskEntityToFromTaskModelConverter {
                 taskEntity.endTime,
                 taskEntity.description,
                 userEntities.stream()
-                    .map { UserEntityToFromUserModelConverter.convertUserEntity(it) }
+                    .map { UserEntityToFromUserModel.convertUserEntity(it) }
                     .collect(Collectors.toSet()),
                 taskEntity.isTaskLocal
             )

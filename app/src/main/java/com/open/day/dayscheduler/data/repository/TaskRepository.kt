@@ -1,28 +1,31 @@
 package com.open.day.dayscheduler.data.repository
 
 import android.icu.util.DateInterval
-import com.open.day.dayscheduler.data.converter.TaskEntityToFromTaskModelConverter.Companion.convertTaskEntityToTaskModel
-import com.open.day.dayscheduler.data.converter.TaskEntityToFromTaskModelConverter.Companion.convertTaskWithUsersToTaskModel
+import com.open.day.dayscheduler.data.converter.dtoModelConverters.TaskModelToTaskDto
+import com.open.day.dayscheduler.data.converter.modelEntityConverters.TaskEntityToFromTaskModel.Companion.convertTaskEntityToTaskModel
+import com.open.day.dayscheduler.data.converter.modelEntityConverters.TaskEntityToFromTaskModel.Companion.convertTaskWithUsersToTaskModel
 import com.open.day.dayscheduler.data.dao.TaskDao
 import com.open.day.dayscheduler.data.dao.UsersTasksDaoMTM
 import com.open.day.dayscheduler.data.entity.TaskEntity
 import com.open.day.dayscheduler.data.entity.TaskWithUsers
-import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.TaskModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.open.day.dayscheduler.model.UserModel
+import com.open.day.dayscheduler.network.TaskNetworkDataSource
+import retrofit2.Retrofit
 import java.util.stream.Collectors
 
 @Singleton
 class TaskRepository @Inject constructor (
     private val taskDao: TaskDao,
     private val userRepository: UserRepository,
-    private val daoMTM: UsersTasksDaoMTM
+    private val daoMTM: UsersTasksDaoMTM,
+    private val retrofit: Retrofit
 ) {
+
+    private val taskNetworkDataSource = retrofit.create(TaskNetworkDataSource::class.java)
 
     suspend fun saveTask(taskModel: TaskModel) {
         val user = userRepository.getLocalUser()
@@ -33,9 +36,11 @@ class TaskRepository @Inject constructor (
         }
 
         if (taskModel.id == null) {
-            insertSharedTask(taskModel, user!!)
+            insertLocalSharedTask(taskModel, user)
+            createRemoteSharedTask(taskModel, user)
         } else {
-            updateSharedTask(taskModel, user!!)
+            updateLocalSharedTask(taskModel, user)
+            updateRemoteSharedTask(taskModel, user)
         }
     }
 
@@ -55,7 +60,7 @@ class TaskRepository @Inject constructor (
         }
     }
 
-    private suspend fun insertSharedTask(taskModel: TaskModel, localUser: UserModel) {
+    private suspend fun insertLocalSharedTask(taskModel: TaskModel, localUser: UserModel) {
         val taskEntity = TaskEntity(
             taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
             taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, localUser.id!!, taskModel.isTaskLocal
@@ -71,7 +76,12 @@ class TaskRepository @Inject constructor (
         taskDao.insertTaskMTM(taskEntity, userIds)
     }
 
-    private suspend fun updateSharedTask(taskModel: TaskModel, localUser: UserModel) {
+    private suspend fun createRemoteSharedTask(taskModel: TaskModel, localUser: UserModel) {
+        val taskDto = TaskModelToTaskDto.convert(taskModel, localUser)
+        taskNetworkDataSource.create(taskDto)
+    }
+
+    private suspend fun updateLocalSharedTask(taskModel: TaskModel, localUser: UserModel) {
         if (taskModel.id != null) {
             val taskEntity = TaskEntity(
                 taskModel.title,
@@ -97,6 +107,11 @@ class TaskRepository @Inject constructor (
         }
     }
 
+    private suspend fun updateRemoteSharedTask(taskModel: TaskModel, localUser: UserModel) {
+        val taskDto = TaskModelToTaskDto.convert(taskModel, localUser)
+        taskNetworkDataSource.update(taskDto)
+    }
+
     suspend fun deleteTaskById(id: UUID) {
         taskDao.deleteById(id)
     }
@@ -114,10 +129,13 @@ class TaskRepository @Inject constructor (
                 .collect(Collectors.toList())
 
         } else {
-            taskDao.getByTimeRangeSuspendable(interval.fromDate, interval.toDate, localUser.id!!)
-                .map {
-                    convertTaskEntityToTaskModel(it)
-                }
+            val tasksDto = taskNetworkDataSource.getByUserId(localUser.id)
+
+            //FIXME: improve caching
+//            taskDao.getByTimeRangeSuspendable(interval.fromDate, interval.toDate, localUser.id!!)
+//                .map {
+//                    convertTaskEntityToTaskModel(it)
+//                }
         }
     }
 
