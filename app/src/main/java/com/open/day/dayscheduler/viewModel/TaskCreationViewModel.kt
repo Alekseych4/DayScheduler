@@ -22,7 +22,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class TasksViewModel @Inject constructor(
+class TaskCreationViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val userRepository: UserRepository
     ) : ViewModel() {
@@ -32,6 +32,9 @@ class TasksViewModel @Inject constructor(
     private lateinit var tasksForDate: List<TaskModel>
 
     private val _task: MutableLiveData<TaskModel?> = MutableLiveData()
+
+    //TODO: remove all LiveData objects below and leave only LiveData<TaskModel>
+    // to increase performance
 
     val title: MutableLiveData<String> = MutableLiveData()
     private val _date: MutableLiveData<Long> = MutableLiveData()

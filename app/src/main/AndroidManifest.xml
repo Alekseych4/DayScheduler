@@ -20,7 +20,8 @@
         </activity>
         <activity
             android:name=".HostActivity"
-            android:exported="false">
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|stateUnspecified">
         </activity>
     </application>
 
