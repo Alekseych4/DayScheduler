@@ -48,6 +48,8 @@
         style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
         app:fabAlignmentMode="center"
         app:fabAnimationMode="slide"
+        app:hideOnScroll="true"
+        app:layout_scrollFlags="scroll|enterAlways"
         app:menu="@menu/schedule_bottom_app_bar_menu">
 
         <com.google.android.material.textview.MaterialTextView

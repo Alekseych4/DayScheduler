@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentContainerView
+import com.google.android.gms.common.util.Strings
 import com.google.android.material.snackbar.Snackbar
-import com.open.day.dayscheduler.viewModel.TasksViewModel
+import com.open.day.dayscheduler.viewModel.DayScheduleViewModel
+import com.open.day.dayscheduler.viewModel.TaskCreationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -15,7 +17,7 @@ class HostActivity : AppCompatActivity() {
         setContentView(R.layout.activity_host)
         val container = findViewById<FragmentContainerView>(R.id.nav_host_fragment_container)
 
-        val viewModel: TasksViewModel by viewModels()
+        val viewModel: DayScheduleViewModel by viewModels()
 //        val navController = this.findNavController(R.id.nav_host_fragment_container)
 
         val startType = intent.getStringExtra(SIGN_IN_TYPE)

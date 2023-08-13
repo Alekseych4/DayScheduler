@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -14,7 +15,7 @@ import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.controller.adapter.DayScheduleAdapter
 import com.open.day.dayscheduler.databinding.FragmentScheduleItemsListBinding
 import com.open.day.dayscheduler.util.TimeCountingUtils
-import com.open.day.dayscheduler.viewModel.TasksViewModel
+import com.open.day.dayscheduler.viewModel.DayScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
@@ -24,7 +25,7 @@ import java.util.Calendar
 @AndroidEntryPoint
 class DayScheduleFragment : Fragment() {
 
-    private val taskViewModel: TasksViewModel by activityViewModels()
+    private val dayScheduleViewModel: DayScheduleViewModel by viewModels()
     private var _binding: FragmentScheduleItemsListBinding? = null
     private val binding get() = _binding!!
 
@@ -40,7 +41,7 @@ class DayScheduleFragment : Fragment() {
         binding.addNewTaskFab.setOnClickListener(onFabClickListener())
         binding.bottomAppBar.setOnMenuItemClickListener(onMenuItemClickListener())
 
-        taskViewModel.tasks.observe(viewLifecycleOwner) { tasks ->
+        dayScheduleViewModel.tasks.observe(viewLifecycleOwner) { tasks ->
             if (tasks.isEmpty()) {
                 binding.emptyScheduleTextView.visibility = View.VISIBLE
                 binding.scheduleItemsList.visibility = View.GONE
@@ -51,16 +52,21 @@ class DayScheduleFragment : Fragment() {
             adapter.submitList(tasks)
         }
 
-        taskViewModel.date.observe(viewLifecycleOwner) {
+        dayScheduleViewModel.date.observe(viewLifecycleOwner) {
             binding.dateInAppBarText.text = TimeCountingUtils.utcMillisToLocalDayDateMonth(it)
         }
 
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        dayScheduleViewModel.updateLocalTasks()
+    }
+
     private fun onFabClickListener(): View.OnClickListener {
         return View.OnClickListener {
-            taskViewModel.date.value?.let {
+            dayScheduleViewModel.date.value?.let {
                 this.findNavController().navigate(DayScheduleFragmentDirections.actionDayScheduleFragmentToTaskCreationFragment(it))
             }
         }
@@ -71,7 +77,7 @@ class DayScheduleFragment : Fragment() {
             when(it.itemId) {
                 R.id.calendar_menu_item -> {
                     val selection = Calendar.getInstance()
-                    taskViewModel.date.value?.let { date ->
+                    dayScheduleViewModel.date.value?.let { date ->
                         selection.timeInMillis = TimeCountingUtils.addOffsetToMillis(date)
                     }
 
@@ -81,7 +87,7 @@ class DayScheduleFragment : Fragment() {
                         .build()
 
                     picker.addOnPositiveButtonClickListener { res ->
-                        taskViewModel.setDate(res)
+                        dayScheduleViewModel.setDate(res)
 
                     }
 

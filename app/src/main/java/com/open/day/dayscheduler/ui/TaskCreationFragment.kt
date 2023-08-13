@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -28,7 +28,7 @@ import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.UserModel
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalDayDateMonth
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalHoursAndMinutes
-import com.open.day.dayscheduler.viewModel.TasksViewModel
+import com.open.day.dayscheduler.viewModel.TaskCreationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 import java.util.UUID
@@ -36,7 +36,7 @@ import java.util.UUID
 @AndroidEntryPoint
 class TaskCreationFragment : Fragment() {
 
-    private val viewModel: TasksViewModel by activityViewModels()
+    private val viewModel: TaskCreationViewModel by viewModels()
     private var _binding: TaskCreationFragmentBinding? = null
     private val binding get() = _binding!!
     private val args: TaskCreationFragmentArgs by navArgs()
@@ -158,6 +158,7 @@ class TaskCreationFragment : Fragment() {
                     viewModel.saveCurrentTask()
                     binding.newTaskProgressIndicator.hide()
                     navController.navigate(TaskCreationFragmentDirections.actionTaskCreationFragmentToDayScheduleFragment())
+//                    navController.popBackStack()
                 }
 
                 if (!it) {
@@ -194,7 +195,7 @@ class TaskCreationFragment : Fragment() {
         return ChipGroup.OnCheckedChangeListener { group, checkedId ->
             val chip = group.findViewById<Chip>(checkedId)
             val tag = Tag.values().find {
-                resources.getString(it.stringResId) == chip.text
+                resources.getString(it.stringResId) == chip?.text
             }
             viewModel.tag.value = tag
         }
@@ -322,9 +323,9 @@ class TaskCreationFragment : Fragment() {
 
     private fun fabTransition(appBar: BottomAppBar) {
         appBar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_END
-        appBar.fabCradleMargin = 0.0F
-        appBar.fabCradleRoundedCornerRadius = 0.0F
-        binding.addSaveNewTaskFab.setImageResource(R.drawable.ic_save_task_24)
+//        appBar.fabCradleMargin = 0.0F
+//        appBar.fabCradleRoundedCornerRadius = 0.0F
+        binding.addSaveNewTaskFab.setImageResource(R.drawable.ic_round_save_24)
     }
 
     private fun setTag(tagText: String?) {
