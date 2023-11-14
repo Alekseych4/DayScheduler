@@ -1,6 +1,5 @@
 package com.open.day.dayscheduler.controller.adapter
 
-import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.open.day.dayscheduler.R
-import com.open.day.dayscheduler.exception.NoSuchRowException
 import com.open.day.dayscheduler.model.TaskModel
 import com.open.day.dayscheduler.ui.DayScheduleFragmentDirections
 import java.util.UUID
@@ -38,8 +36,6 @@ class DayScheduleAdapter(private val navController: NavController)
         val chipGroup: ChipGroup = itemView.findViewById(R.id.schedule_item_chip_group)
 
         fun bindDataWithView(taskModel: TaskModel) {
-            if (taskModel.id == null)
-                throw NoSuchRowException("Item doesn't have an id.")
             if (!taskModel.isReminder && taskModel.endTime != null)
                 timeEnd.text = getTime(taskModel.endTime as Long)
 

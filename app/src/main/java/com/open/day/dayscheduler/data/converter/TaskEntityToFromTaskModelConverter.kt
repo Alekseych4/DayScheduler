@@ -11,7 +11,6 @@ class TaskEntityToFromTaskModelConverter {
     companion object {
         fun convertTaskWithUsersToTaskModel(taskWithUsers: TaskWithUsers): TaskModel {
             return TaskModel(
-                taskWithUsers.taskEntity.id,
                 taskWithUsers.taskEntity.title,
                 if (taskWithUsers.taskEntity.tag == null) null else Tag.valueOf(taskWithUsers.taskEntity.tag),
                 taskWithUsers.taskEntity.startTime,
@@ -22,13 +21,13 @@ class TaskEntityToFromTaskModelConverter {
                 taskWithUsers.userEntities.stream()
                     .map { UserEntityToFromUserModelConverter.convertUserEntity(it) }
                     .collect(Collectors.toSet()),
-                taskWithUsers.taskEntity.isTaskLocal
+                taskWithUsers.taskEntity.isTaskLocal,
+                taskWithUsers.taskEntity.id
             )
         }
 
         fun convertTaskEntityToTaskModel(taskEntity: TaskEntity, userEntities: List<UserEntity> = listOf()): TaskModel {
             return TaskModel(
-                taskEntity.id,
                 taskEntity.title,
                 if (taskEntity.tag == null) null else Tag.valueOf(taskEntity.tag),
                 taskEntity.startTime,
@@ -39,7 +38,8 @@ class TaskEntityToFromTaskModelConverter {
                 userEntities.stream()
                     .map { UserEntityToFromUserModelConverter.convertUserEntity(it) }
                     .collect(Collectors.toSet()),
-                taskEntity.isTaskLocal
+                taskEntity.isTaskLocal,
+                taskEntity.id
             )
         }
     }

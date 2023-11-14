@@ -1,6 +1,12 @@
 package com.open.day.dayscheduler.ui
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -22,16 +28,21 @@ import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.open.day.dayscheduler.NotificationActivity
 import com.open.day.dayscheduler.R
 import com.open.day.dayscheduler.databinding.TaskCreationFragmentBinding
 import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.UserModel
+import com.open.day.dayscheduler.util.Constants
+import com.open.day.dayscheduler.util.TASK_ID
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalDayDateMonth
 import com.open.day.dayscheduler.util.TimeCountingUtils.Companion.utcMillisToLocalHoursAndMinutes
 import com.open.day.dayscheduler.viewModel.TaskCreationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 import java.util.UUID
+
+const val PENDING_INTENT_REQUEST_CODE = 0
 
 @AndroidEntryPoint
 class TaskCreationFragment : Fragment() {
@@ -156,6 +167,9 @@ class TaskCreationFragment : Fragment() {
 
                 if (!hasError() && !it) {
                     viewModel.saveCurrentTask()
+                    //TODO: change this Elvis to normal code
+                    createAlarm(, viewModel.startTime.value ?: 0)
+
                     binding.newTaskProgressIndicator.hide()
                     navController.navigate(TaskCreationFragmentDirections.actionTaskCreationFragmentToDayScheduleFragment())
 //                    navController.popBackStack()
@@ -396,5 +410,30 @@ class TaskCreationFragment : Fragment() {
             }
             viewModel.isLocalTask.value = checkbox.isChecked
         }
+    }
+
+    private fun createAlarm(taskId: UUID, alarmTime: Long): Unit {
+        val alarmManager = activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    && !alarmManager.canScheduleExactAlarms() -> grantScheduleExactAlarm(alarmManager)
+            else -> {
+                //TODO: add PendingIntent
+                val intent = Intent(requireContext(), NotificationActivity::class.java)
+                intent.putExtra(TASK_ID, taskId)
+//                intent.setClass(requireContext(), TaskCreationFragment::class.java)
+
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    alarmTime,
+                    PendingIntent.getActivity(context, PENDING_INTENT_REQUEST_CODE, intent, Intent.FLAG_ACTIVITY_NEW_TASK or PendingIntent.FLAG_IMMUTABLE)
+                )
+            }
+        }
+    }
+
+    private fun grantScheduleExactAlarm(alarmManager: AlarmManager) {
+        //TODO: add explaining fragment (rationale)
+        startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
     }
 }

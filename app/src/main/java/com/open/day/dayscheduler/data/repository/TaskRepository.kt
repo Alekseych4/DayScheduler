@@ -7,10 +7,7 @@ import com.open.day.dayscheduler.data.dao.TaskDao
 import com.open.day.dayscheduler.data.dao.UsersTasksDaoMTM
 import com.open.day.dayscheduler.data.entity.TaskEntity
 import com.open.day.dayscheduler.data.entity.TaskWithUsers
-import com.open.day.dayscheduler.model.Tag
 import com.open.day.dayscheduler.model.TaskModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,7 +54,7 @@ class TaskRepository @Inject constructor (
 
     private suspend fun insertSharedTask(taskModel: TaskModel, localUser: UserModel) {
         val taskEntity = TaskEntity(
-            taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
+            taskModel.id, taskModel.title, taskModel.description, taskModel.startTime, taskModel.endTime,
             taskModel.isReminder, taskModel.isAnchor, taskModel.tag?.name, localUser.id!!, taskModel.isTaskLocal
         )
 
@@ -74,6 +71,7 @@ class TaskRepository @Inject constructor (
     private suspend fun updateSharedTask(taskModel: TaskModel, localUser: UserModel) {
         if (taskModel.id != null) {
             val taskEntity = TaskEntity(
+                taskModel.id,
                 taskModel.title,
                 taskModel.description,
                 taskModel.startTime,
@@ -82,8 +80,7 @@ class TaskRepository @Inject constructor (
                 taskModel.isAnchor,
                 taskModel.tag?.name,
                 localUser.id!!,
-                taskModel.isTaskLocal,
-                taskModel.id
+                taskModel.isTaskLocal
             )
 
             taskModel.addedUserIds.add(localUser)

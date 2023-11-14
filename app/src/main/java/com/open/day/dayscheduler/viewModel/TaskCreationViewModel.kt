@@ -25,18 +25,17 @@ import javax.inject.Inject
 class TaskCreationViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val userRepository: UserRepository
-    ) : ViewModel() {
+) : ViewModel() {
 
-    private val _tasks: MutableLiveData<List<TaskModel>> = MutableLiveData()
-    val tasks: LiveData<List<TaskModel>> = _tasks
     private lateinit var tasksForDate: List<TaskModel>
 
-    private val _task: MutableLiveData<TaskModel?> = MutableLiveData()
+    private val _taskModel: MutableLiveData<TaskModel> = MutableLiveData()
+    val taskModel: LiveData<TaskModel> = _taskModel
 
     //TODO: remove all LiveData objects below and leave only LiveData<TaskModel>
     // to increase performance
 
-    val title: MutableLiveData<String> = MutableLiveData()
+
     private val _date: MutableLiveData<Long> = MutableLiveData()
     val date: LiveData<Long> = _date
     private val _taskDate: MutableLiveData<Long> = MutableLiveData()
@@ -74,13 +73,14 @@ class TaskCreationViewModel @Inject constructor(
         isLocalTask.value = true
         setIsSignedIn()
 
-        viewModelScope.launch {
-            _tasks.value = taskRepository.getTasksList(TimeCountingUtils.getCurrentDayInterval())
-        }
+        _taskModel.value = TaskModel(
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).timeInMillis,
+            mutableSetOf(),
+            true
+        )
     }
 
     fun saveCurrentTask() {
-        val titleString = title.value
         val startLong = startTime.value
         val rem = isReminder.value
         val anc = isAnchor.value
@@ -88,33 +88,20 @@ class TaskCreationViewModel @Inject constructor(
         val addUsersIds = _addUsers.value
 
 
-        if (titleString != null && startLong != null && rem != null && anc != null && locTask != null && addUsersIds != null) {
-            val toSave = TaskModel(
-                _task.value?.id,
-                titleString,
-                tag.value,
-                startLong,
-                rem,
-                anc,
-                endTime.value,
-                description.value,
-                addUsersIds,
-                locTask
-            )
+        if (startLong != null && rem != null && anc != null && locTask != null && addUsersIds != null) {
+
             try {
-                saveTask(toSave)
+                _taskModel.value?.let { saveTask(it) }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
-                _task.value = null
-                title.value = String()
+                _taskModel.value = null
                 isAnchor.value = false
                 isReminder.value = false
                 description.value = null
                 tag.value = null
                 _addUsers.value?.clear()
                 isLocalTask.value = false
-                updateLocalTasks()
             }
         } else {
             _error.value = "Data is invalid"
@@ -127,15 +114,6 @@ class TaskCreationViewModel @Inject constructor(
 
     fun deleteTask(id: UUID) {
         viewModelScope.launch { taskRepository.deleteTaskById(id) }
-    }
-
-    private fun updateLocalTasks() {
-        launchDataLoad {
-            //TODO: add exception handling
-            _date.value?.let { date ->
-                _tasks.value = taskRepository.getTasksList(TimeCountingUtils.getDayInterval(date))
-            }
-        }
     }
 
     private fun getLocalTasksForDate(date: Long?): Job {
@@ -160,34 +138,34 @@ class TaskCreationViewModel @Inject constructor(
     }
 
     fun updateTaskById(taskId: UUID) {
-       viewModelScope.launch {
-           val res = taskRepository.getTaskById(taskId)
-           if (res == null) {
-               _error.value = "No such data"
-           } else {
-               _task.value = res
-               updateTaskFields()
-           }
-       }
+        viewModelScope.launch {
+            val res = taskRepository.getTaskById(taskId)
+            if (res == null) {
+                _error.value = "No such data"
+            } else {
+                _taskModel.value = res
+                updateTaskFields()
+            }
+        }
     }
 
     private fun updateTaskFields() {
-        setTitle(_task.value?.title)
-        _task.value?.startTime?.let { setStartTime(it) }
-        setEndTime(_task.value?.endTime)
-        setDescription(_task.value?.description)
-        _task.value?.isAnchor?.let { setIsAnchor(it) }
-        _task.value?.isReminder?.let { setIsReminder(it) }
-        setTag(_task.value?.tag)
+        setTitle(_taskModel.value?.title)
+        _taskModel.value?.startTime?.let { setStartTime(it) }
+        setEndTime(_taskModel.value?.endTime)
+        setDescription(_taskModel.value?.description)
+        _taskModel.value?.isAnchor?.let { setIsAnchor(it) }
+        _taskModel.value?.isReminder?.let { setIsReminder(it) }
+        setTag(_taskModel.value?.tag)
         setIsSignedIn()
-        _task.value?.isTaskLocal.let { isLocalTask.value = it }
+        _taskModel.value?.isTaskLocal.let { isLocalTask.value = it }
     }
 
     fun setTitle(titleText: String?) {
         if (titleText.isNullOrBlank()) {
             _titleInputError.value = R.string.field_empty_error
         } else {
-            title.value = titleText!!
+            _taskModel.value?.let { it.title = titleText }
         }
     }
 
@@ -259,7 +237,7 @@ class TaskCreationViewModel @Inject constructor(
                     val oldS = it.startTime
                     var equalIds = false
                     it.id?.let { listId ->
-                        equalIds = listId == _task.value?.id
+                        equalIds = listId == _taskModel.value?.id
                     }
 
                     if (oldE == null || equalIds) false else TimeCountingUtils
@@ -288,11 +266,6 @@ class TaskCreationViewModel @Inject constructor(
 
     fun setTag(tagInstance: Tag?) {
         tag.value = tagInstance
-    }
-
-    fun setDate(date: Long) {
-        _date.value = date
-        updateLocalTasks()
     }
 
     fun setTaskDate(date: Long) {

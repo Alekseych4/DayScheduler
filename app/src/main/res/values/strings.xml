@@ -37,4 +37,9 @@
     <string name="add_user_hint">Add user to task</string>
     <string name="add_user_helper">Input user\'s email</string>
     <string name="user_not_found_error">User is not found</string>
+    <string name="reminder_channel_name">Make sound and pop on screen</string>
+    <string name="">Make sound and pop on screen</string>
+    <string name="reminder_channel_description">Make sound and pop on screen</string>
+    <string name="notification_title">Notification Title</string>
+    <string name="notification_subtitle">Notification Subtitle</string>
 </resources>

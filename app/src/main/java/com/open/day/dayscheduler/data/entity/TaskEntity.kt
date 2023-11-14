@@ -7,6 +7,7 @@ import java.util.UUID
 
 @Entity(tableName = "tasks")
 data class TaskEntity(
+    @PrimaryKey val id: UUID,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "start_time") val startTime: Long,
@@ -15,6 +16,5 @@ data class TaskEntity(
     @ColumnInfo(name = "is_anchor") val isAnchor: Boolean,
     @ColumnInfo(name = "tag") val tag: String?,
     @ColumnInfo(name = "user_id") val userId: UUID,
-    @ColumnInfo(name = "is_task_local") val isTaskLocal: Boolean = true,
-    @PrimaryKey val id: UUID = UUID.randomUUID()
+    @ColumnInfo(name = "is_task_local") val isTaskLocal: Boolean = true
 )

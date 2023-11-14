@@ -2,8 +2,9 @@ package com.open.day.dayscheduler.model
 
 import java.util.UUID
 
+private const val EMPTY_STRING = ""
+
 data class TaskModel(
-    val id: UUID?,
     var title: String,
     val tag: Tag?,
     var startTime: Long,
@@ -12,5 +13,18 @@ data class TaskModel(
     var endTime: Long?,
     var description: String?,
     val addedUserIds: MutableSet<UserModel>,
-    var isTaskLocal: Boolean
-)
+    var isTaskLocal: Boolean,
+    val id: UUID = UUID.randomUUID()
+) {
+    constructor(startTime: Long, addedUserIds: MutableSet<UserModel>, isTaskLocal: Boolean) : this(
+        EMPTY_STRING,
+        null,
+        startTime,
+        false,
+        false,
+        null,
+        EMPTY_STRING,
+        addedUserIds,
+        isTaskLocal
+    )
+}

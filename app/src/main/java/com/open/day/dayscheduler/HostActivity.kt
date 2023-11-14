@@ -1,14 +1,17 @@
 package com.open.day.dayscheduler
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentContainerView
-import com.google.android.gms.common.util.Strings
 import com.google.android.material.snackbar.Snackbar
 import com.open.day.dayscheduler.viewModel.DayScheduleViewModel
-import com.open.day.dayscheduler.viewModel.TaskCreationViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
+const val NOTIFICATION_CHANNEL_ID = "com.open.day.dayscheduler.NOTIFICATION_CHANNEL_ID"
 
 @AndroidEntryPoint
 class HostActivity : AppCompatActivity() {
@@ -28,6 +31,20 @@ class HostActivity : AppCompatActivity() {
 
         viewModel.error.observe(this) {
             Snackbar.make(container, it, Snackbar.LENGTH_LONG).show()
+        }
+
+        createNotificationChannel()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.reminder_channel_name)
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH)
+            channel.description = getString(R.string.reminder_channel_description)
+            channel.enableLights(true)
+
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

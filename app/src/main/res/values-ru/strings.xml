@@ -37,4 +37,9 @@
     <string name="add_user_hint">Добавить пользователя к задаче</string>
     <string name="add_user_helper">Введите электронную почту пользователя</string>
     <string name="user_not_found_error">Пользователь не найден</string>
+    <string name="reminder_channel_name">Напоминание</string>
+    <string name="reminder_channel_description">Звук и появление на экране</string>
+    <string name="notification_title">Заголовок уведомления</string>
+    <string name="notification_title">Зf</string>
+    <string name="notification_subtitle">Подзаголовок уведомления</string>
 </resources>
